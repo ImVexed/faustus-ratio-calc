@@ -11,8 +11,8 @@ It supports:
 - The exact market unit for context.
 
 For the motivating example, selling `108` at `1:1.19` defaults to a safer
-`21 for 25` chunk plan for `105` items, with the remaining `3` called out
-separately. The sell-all alternative is `36 for 43` posted three times.
+`105 for 125` listing, with the remaining `3` called out separately. The
+reduced unit behind that row is `21 for 25`.
 
 ## GitHub Pages
 

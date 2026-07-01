@@ -47,6 +47,10 @@ function formatListing(row) {
   return `${row.have} for ${row.want}`;
 }
 
+function formatPlanTotal(plan) {
+  return `${plan.totals.have} for ${plan.totals.want}`;
+}
+
 function sliderToPrice(value) {
   const position = Number(value) / 1000;
   return sliderMinPrice * (sliderMaxPrice / sliderMinPrice) ** position;
@@ -139,27 +143,30 @@ function render() {
         ? `Target: 1 item for ${formatPrice(priceNumber)} currency`
         : `Target: ${formatPrice(basePriceNumber)} nudged to ${formatPrice(priceNumber)}`;
 
-    mainListing.textContent = formatListing(mainRow);
+    mainListing.textContent = formatPlanTotal(plan);
     mainCopy.textContent =
       leftover > 0
-        ? `Post ${mainRow.repeat} times. Covers ${covered} of ${totalHave}; keep ${leftover} aside.`
-        : `Post ${mainRow.repeat} times. Covers all ${totalHave}.`;
+        ? `Use ${covered} of ${totalHave}; leave ${leftover}. Reduced unit: ${formatListing(mainRow)}.`
+        : `Uses all ${totalHave}. Reduced unit: ${formatListing(mainRow)}.`;
 
     if (sellAll) {
-      sellAllListing.textContent = formatListing(sellAll.rows[0]);
-      sellAllCopy.textContent = `Post ${sellAll.rows[0].repeat} times. Covers ${totalHave} at ${formatPrice(
-        sellAll.rate,
-      )} (${pct(sellAll.error)}).`;
+      sellAllListing.textContent = formatPlanTotal(sellAll);
+      sellAllCopy.textContent = `Uses all ${totalHave}. Reduced unit: ${formatListing(
+        sellAll.rows[0],
+      )}. Drift ${pct(sellAll.error)}.`;
     } else {
       sellAllListing.textContent = "No clean split";
       sellAllCopy.textContent = "Use the main row and hold the leftover.";
     }
 
-    exactListing.textContent = `${exact.have} for ${exact.want}`;
+    const exactCount = Math.floor(totalHave / exact.have);
+    const exactHave = exact.have * exactCount;
+    const exactWant = exact.want * exactCount;
+    exactListing.textContent = exactCount > 0 ? `${exactHave} for ${exactWant}` : `${exact.have} for ${exact.want}`;
     exactCopy.textContent =
-      exact.have > 30
-        ? "Exact, but a high denominator."
-        : `Exact ratio at ${formatPrice(exact.want / exact.have)}.`;
+      exactCount > 0
+        ? `Exact ratio. Leaves ${totalHave - exactHave}. Unit: ${exact.have} for ${exact.want}.`
+        : `Exact unit is bigger than your stack: ${exact.have} for ${exact.want}.`;
   } catch (error) {
     renderError(error.message);
   }

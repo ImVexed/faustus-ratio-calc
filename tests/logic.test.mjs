@@ -41,6 +41,7 @@ test("finds a low-drift chunk for 108 at 1:1.19", () => {
 
   const plan = buildPlan(best, 108, 10, price, { rounding: "atLeast" });
   assert.equal(plan.totals.have, 105);
+  assert.equal(plan.totals.want, 125);
   assert.equal(plan.leftover.have, 3);
 });
 
