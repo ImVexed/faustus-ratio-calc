@@ -7,12 +7,10 @@ It supports:
 
 - Ratios like `1:1.19`, `1.19`, `1.2 to 1`, `100:119`, and `16 + 12/143`.
 - A ratio slider and a small nudge slider.
-- One primary row to post, plus a compact sell-all alternative.
-- The exact market unit for context.
+- One primary clean listing, plus the closest full-stack listing.
 
 For the motivating example, selling `108` at `1:1.19` defaults to a safer
-`105 for 125` listing, with the remaining `3` called out separately. The
-reduced unit behind that row is `21 for 25`.
+`105 for 125` listing. The closest full-stack alternative is `108 for 129`.
 
 ## GitHub Pages
 

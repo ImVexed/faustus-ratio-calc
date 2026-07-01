@@ -17,13 +17,10 @@ const ratioSliderOutput = document.querySelector("#ratioSliderOutput");
 const nudgeInput = document.querySelector("#nudgeBps");
 const nudgeOutput = document.querySelector("#nudgeOutput");
 const flipRatio = document.querySelector("#flipRatio");
-const targetSummary = document.querySelector("#targetSummary");
 const mainListing = document.querySelector("#mainListing");
 const mainCopy = document.querySelector("#mainCopy");
 const sellAllListing = document.querySelector("#sellAllListing");
 const sellAllCopy = document.querySelector("#sellAllCopy");
-const exactListing = document.querySelector("#exactListing");
-const exactCopy = document.querySelector("#exactCopy");
 
 let syncingSlider = false;
 const sliderMinPrice = 0.1;
@@ -41,10 +38,6 @@ function pct(value, digits = 2) {
 
 function formatPrice(value, digits = 4) {
   return formatDecimal(value, digits);
-}
-
-function formatListing(row) {
-  return `${row.have} for ${row.want}`;
 }
 
 function formatPlanTotal(plan) {
@@ -114,11 +107,9 @@ function syncRatioSlider(basePrice) {
 function renderError(message) {
   mainListing.textContent = "Check ratio";
   mainCopy.textContent = message;
+  mainCopy.hidden = false;
   sellAllListing.textContent = "-";
   sellAllCopy.textContent = "";
-  exactListing.textContent = "-";
-  exactCopy.textContent = "";
-  targetSummary.textContent = message;
 }
 
 function render() {
@@ -127,46 +118,23 @@ function render() {
     const basePrice = parsePrice(ratioInput.value);
     const nudgeBps = Number.parseInt(nudgeInput.value, 10) || 0;
     const price = applyNudge(basePrice, nudgeBps);
-    const priceNumber = fractionToNumber(price);
-    const basePriceNumber = fractionToNumber(basePrice);
     const plan = planFromPrice(price, totalHave);
-    const mainRow = plan.rows[0];
     const sellAll = sellAllPlan(price, totalHave, totalHave, "atLeast");
-    const exact = exactUnit(price);
-    const covered = plan.totals.have;
-    const leftover = totalHave - covered;
 
     syncRatioSlider(basePrice);
     nudgeOutput.textContent = pct(nudgeBps / 10000);
-    targetSummary.textContent =
-      nudgeBps === 0
-        ? `Target: 1 item for ${formatPrice(priceNumber)} currency`
-        : `Target: ${formatPrice(basePriceNumber)} nudged to ${formatPrice(priceNumber)}`;
 
     mainListing.textContent = formatPlanTotal(plan);
-    mainCopy.textContent =
-      leftover > 0
-        ? `Use ${covered} of ${totalHave}; leave ${leftover}. Reduced unit: ${formatListing(mainRow)}.`
-        : `Uses all ${totalHave}. Reduced unit: ${formatListing(mainRow)}.`;
+    mainCopy.textContent = "";
+    mainCopy.hidden = true;
 
     if (sellAll) {
       sellAllListing.textContent = formatPlanTotal(sellAll);
-      sellAllCopy.textContent = `Uses all ${totalHave}. Reduced unit: ${formatListing(
-        sellAll.rows[0],
-      )}. Drift ${pct(sellAll.error)}.`;
+      sellAllCopy.textContent = "Nearest whole-number price for the whole stack.";
     } else {
       sellAllListing.textContent = "No clean split";
-      sellAllCopy.textContent = "Use the main row and hold the leftover.";
+      sellAllCopy.textContent = "";
     }
-
-    const exactCount = Math.floor(totalHave / exact.have);
-    const exactHave = exact.have * exactCount;
-    const exactWant = exact.want * exactCount;
-    exactListing.textContent = exactCount > 0 ? `${exactHave} for ${exactWant}` : `${exact.have} for ${exact.want}`;
-    exactCopy.textContent =
-      exactCount > 0
-        ? `Exact ratio. Leaves ${totalHave - exactHave}. Unit: ${exact.have} for ${exact.want}.`
-        : `Exact unit is bigger than your stack: ${exact.have} for ${exact.want}.`;
   } catch (error) {
     renderError(error.message);
   }
