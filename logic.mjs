@@ -105,7 +105,9 @@ export function parseNumberLike(raw) {
 }
 
 export function parsePrice(raw, mode = "haveWant") {
-  const normalized = String(raw ?? "").trim();
+  const normalized = String(raw ?? "")
+    .trim()
+    .replace(/\s*(?:to|->|=>)\s*/i, ":");
   let price;
 
   if (normalized.includes(":")) {

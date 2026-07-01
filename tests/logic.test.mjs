@@ -17,6 +17,12 @@ test("parses have:want decimal ratios", () => {
   assert.deepEqual(exactUnit(price), { have: 100, want: 119 });
 });
 
+test("parses text ratios people type from trade listings", () => {
+  const price = parsePrice("1.2 to 1", "haveWant");
+  assert.equal(price.n, 5n);
+  assert.equal(price.d, 6n);
+});
+
 test("parses mixed fractions used in trade explanations", () => {
   const price = parsePrice("16 + 12/143", "wantPerHave");
   assert.equal(price.n, 2300n);

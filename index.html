@@ -9,203 +9,69 @@
   <body>
     <main class="shell">
       <header class="app-header">
-        <div>
-          <p class="eyebrow">Path of Exile currency exchange helper</p>
-          <h1>Faustus Ratio Splitter</h1>
-          <p class="lede">
-            Turn annoying fractional ratios into safer exchange rows, with exact,
-            chunked, shielded, and sell-all options.
-          </p>
-        </div>
-        <div class="quick-readout" aria-live="polite">
-          <span class="quick-label">Current target</span>
-          <strong id="targetReadout">1 have -> 1.19 want</strong>
-          <span id="riskReadout">Exact unit: 100 -> 119</span>
-        </div>
+        <p class="eyebrow">Path of Exile exchange helper</p>
+        <h1>Faustus Ratio Splitter</h1>
+        <p class="lede">Set your stack and market ratio. Get the rows to post.</p>
       </header>
 
-      <section class="workspace" aria-label="Ratio calculator">
-        <form class="controls" id="calculatorForm">
-          <section class="panel" aria-labelledby="listingHeading">
-            <div class="section-title">
-              <span class="step">1</span>
-              <div>
-                <h2 id="listingHeading">What are you listing?</h2>
-                <p>Name the two sides so the output reads like the exchange.</p>
-              </div>
-            </div>
+      <section class="calculator" aria-label="Ratio calculator">
+        <form class="input-panel" id="calculatorForm">
+          <label class="field">
+            <span>I have</span>
+            <input id="totalHave" name="totalHave" type="number" min="1" step="1" value="108" inputmode="numeric">
+          </label>
 
-            <div class="field-grid two">
-              <label class="field">
-                <span>Total have</span>
-                <input id="totalHave" name="totalHave" type="number" min="1" step="1" value="108" inputmode="numeric">
-              </label>
-              <label class="field">
-                <span>Order slots</span>
-                <input id="slots" name="slots" type="number" min="1" max="30" step="1" value="10" inputmode="numeric">
-              </label>
-            </div>
-
-            <div class="field-grid two">
-              <label class="field">
-                <span>Have label</span>
-                <input id="haveLabel" name="haveLabel" type="text" value="item" autocomplete="off">
-              </label>
-              <label class="field">
-                <span>Want label</span>
-                <input id="wantLabel" name="wantLabel" type="text" value="chaos" autocomplete="off">
-              </label>
-            </div>
-          </section>
-
-          <section class="panel" aria-labelledby="priceHeading">
-            <div class="section-title">
-              <span class="step">2</span>
-              <div>
-                <h2 id="priceHeading">Set the ratio</h2>
-                <p>Use the phrasing that matches how you think about the trade.</p>
-              </div>
-            </div>
-
-            <div class="segmented" role="radiogroup" aria-label="Ratio input style">
-              <label>
-                <input type="radio" name="ratioMode" value="haveWant" checked>
-                <span>Have:Want</span>
-              </label>
-              <label>
-                <input type="radio" name="ratioMode" value="wantPerHave">
-                <span>Want per 1 have</span>
-              </label>
-              <label>
-                <input type="radio" name="ratioMode" value="havePerWant">
-                <span>Have per 1 want</span>
-              </label>
-            </div>
-
-            <label class="field">
-              <span>Target ratio</span>
-              <input id="ratioInput" name="ratioInput" type="text" value="1:1.19" autocomplete="off" spellcheck="false">
+          <div class="field ratio-field">
+            <label for="ratioInput">
+              <span>Market ratio</span>
             </label>
+            <div class="ratio-line">
+              <input id="ratioInput" name="ratioInput" type="text" value="1:1.19" autocomplete="off" spellcheck="false">
+              <button id="flipRatio" type="button">Flip</button>
+            </div>
+          </div>
 
-            <div class="slider-row">
-              <label for="nudgeBps">Nudge price</label>
-              <input id="nudgeBps" name="nudgeBps" type="range" min="-250" max="250" step="5" value="0">
+          <div class="range-row">
+            <div class="range-label">
+              <label for="ratioSlider">Ratio</label>
+              <output id="ratioSliderOutput" for="ratioSlider">1.19</output>
+            </div>
+            <input id="ratioSlider" name="ratioSlider" type="range" min="0" max="1000" step="1" value="448">
+          </div>
+
+          <div class="range-row">
+            <div class="range-label">
+              <label for="nudgeBps">Nudge</label>
               <output id="nudgeOutput" for="nudgeBps">0.00%</output>
             </div>
-          </section>
+            <input id="nudgeBps" name="nudgeBps" type="range" min="-250" max="250" step="5" value="0">
+          </div>
 
-          <section class="panel" aria-labelledby="strategyHeading">
-            <div class="section-title">
-              <span class="step">3</span>
-              <div>
-                <h2 id="strategyHeading">Pick guardrails</h2>
-                <p>Lower atomic units survive partial fills better, but may be less exact.</p>
-              </div>
-            </div>
-
-            <div class="field-grid two">
-              <label class="field">
-                <span>Max atomic have</span>
-                <input id="maxAtomic" name="maxAtomic" type="number" min="2" max="200" step="1" value="30" inputmode="numeric">
-              </label>
-              <label class="field">
-                <span>Max price drift</span>
-                <select id="maxDrift" name="maxDrift">
-                  <option value="0.005">0.5%</option>
-                  <option value="0.01" selected>1%</option>
-                  <option value="0.025">2.5%</option>
-                  <option value="0.05">5%</option>
-                </select>
-              </label>
-            </div>
-
-            <fieldset class="choice-group">
-              <legend>Rounding preference</legend>
-              <label>
-                <input type="radio" name="rounding" value="atLeast" checked>
-                <span>Do not list below target</span>
-              </label>
-              <label>
-                <input type="radio" name="rounding" value="nearest">
-                <span>Closest visible ratio</span>
-              </label>
-              <label>
-                <input type="radio" name="rounding" value="atMost">
-                <span>Do not list above target</span>
-              </label>
-            </fieldset>
-          </section>
+          <p class="target-line" id="targetSummary">Target: 1 item for 1.19 currency</p>
         </form>
 
-        <section class="results" aria-live="polite">
-          <section class="recommendation" id="recommendation">
-            <div>
-              <p class="eyebrow">Recommended row</p>
-              <h2 id="recommendationTitle">Calculating...</h2>
-              <p id="recommendationCopy"></p>
-            </div>
-            <div class="recommendation-stat">
-              <span id="recommendationRate">-</span>
-              <small>visible price</small>
-            </div>
-          </section>
+        <section class="answer-panel" aria-live="polite">
+          <article class="primary-answer">
+            <p class="eyebrow">Use this</p>
+            <h2 id="mainListing">Calculating...</h2>
+            <p id="mainCopy"></p>
+          </article>
 
-          <div class="result-grid" id="resultGrid"></div>
-
-          <section class="panel simulator" aria-labelledby="simHeading">
-            <div class="section-title compact">
-              <span class="step">4</span>
-              <div>
-                <h2 id="simHeading">Partial-fill check</h2>
-                <p>Test why a row vanishes after a tiny fill.</p>
-              </div>
-            </div>
-
-            <div class="field-grid four">
-              <label class="field">
-                <span>Order have</span>
-                <input id="simHave" type="number" min="1" step="1" value="100" inputmode="numeric">
-              </label>
-              <label class="field">
-                <span>Order want</span>
-                <input id="simWant" type="number" min="1" step="1" value="119" inputmode="numeric">
-              </label>
-              <label class="field">
-                <span>Filled have</span>
-                <input id="simFillHave" type="number" min="1" step="1" value="6" inputmode="numeric">
-              </label>
-              <label class="field">
-                <span>Received want</span>
-                <input id="simFillWant" type="number" min="1" step="1" value="8" inputmode="numeric">
-              </label>
-            </div>
-
-            <div class="sim-output" id="simOutput"></div>
-          </section>
+          <div class="quick-options">
+            <article class="option">
+              <span>Sell every item</span>
+              <strong id="sellAllListing">-</strong>
+              <small id="sellAllCopy"></small>
+            </article>
+            <article class="option">
+              <span>Exact market unit</span>
+              <strong id="exactListing">-</strong>
+              <small id="exactCopy"></small>
+            </article>
+          </div>
         </section>
       </section>
     </main>
-
-    <template id="strategyTemplate">
-      <article class="strategy-card">
-        <div class="card-head">
-          <div>
-            <p class="eyebrow strategy-kind"></p>
-            <h3></h3>
-          </div>
-          <span class="risk-pill"></span>
-        </div>
-        <p class="strategy-note"></p>
-        <div class="order-table" role="table">
-          <div class="order-row order-header" role="row">
-            <span>Have</span>
-            <span>Want</span>
-            <span>Repeat</span>
-          </div>
-        </div>
-        <dl class="metrics"></dl>
-      </article>
-    </template>
 
     <script type="module" src="./app.mjs"></script>
   </body>
